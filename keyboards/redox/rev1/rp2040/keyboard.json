@@ -1,0 +1,18 @@
+{
+    "usb": {
+        "device_version": "1.0.0"
+    },
+    "matrix_pins": {
+        "cols": ["GP28", "GP27", "GP26", "GP22", "GP20", "GP23", "GP21"],
+        "rows": ["GP4", "GP6", "GP7", "GP8", "GP9"]
+    },
+    "diode_direction": "COL2ROW",
+    "split": {
+        "soft_serial_pin": "GP6"
+    },
+    "ws2812": {
+        "pin": "GP0",
+        "driver": "vendor"
+    },
+    "development_board": "promicro_rp2040"
+}
