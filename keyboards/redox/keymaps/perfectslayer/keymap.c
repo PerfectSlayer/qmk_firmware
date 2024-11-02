@@ -79,21 +79,50 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+/*
+ * RGBLIGHT_LAYERS configuration.
+ */
+
+// Light LEDs 0 to 13 (all LEDs) red when caps lock is active. Hard to ignore!
+const rgblight_segment_t PROGMEM my_capslock_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, 14, HSV_RED}
+);
+// Light LEDs 1 to 3 and 10 to 13 in yellow when keyboard layer 1 (_SYMB) is active
+const rgblight_segment_t PROGMEM my_symbol_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {1, 3, HSV_YELLOW},
+    {10, 3, HSV_YELLOW}
+);
+// Light LEDs 3 to 6 and 7 to 10 in yellow when keyboard layer 2 (_ADJUST) is active
+const rgblight_segment_t PROGMEM my_adjust_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {3, 4, HSV_YELLOW},
+    {7, 4, HSV_YELLOW}
+);
+// Now define the array of layers. Later layers take precedence
+const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+    my_capslock_layer,
+    my_symbol_layer,    // Overrides symbols layer
+    my_adjust_layer     // Overrides adjust layer
+);
+
+void keyboard_post_init_user(void) {
+    // Enable the LED layers
+    rgblight_layers = my_rgb_layers;
+}
+
+bool led_update_user(led_t led_state) {
+    rgblight_set_layer_state(0, led_state.caps_lock);
+    return true;
+}
+
+// Function to set up the default layer state at initialization
+// layer_state_t default_layer_state_set_user(layer_state_t state) {
+//     rgblight_set_layer_state(1, layer_state_cmp(state, _DVORAK));
+//     return state;
+// }
+
 layer_state_t layer_state_set_user(layer_state_t state) {
-    switch (get_highest_layer(state)) {
-        case _SYMB:
-            // Yellow backlight
-            rgblight_setrgb(0xFF,  0xFF, 0x00);
-            break;
-        // case _PLOVER:
-        // case _ADJUST:
-        // for any other layers, or the default layer
-        case _QWERTY:
-        default:
-            // Cyan backlight
-            rgblight_setrgb(0x00,  0xFF, 0xFF);
-            break;
-    }
+    rgblight_set_layer_state(1, layer_state_cmp(state, _SYMB));
+    rgblight_set_layer_state(2, layer_state_cmp(state, _ADJUST));
    return state;
 }
 
