@@ -36,3 +36,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    _______, _______, _______, _______, _______, _______, _______, _______
     )
 };
+
+#ifdef ENCODER_ENABLE
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    // Check if LOWER layer is active
+    if (layer_state_is(_LOWER)) {
+        if (!clockwise) {
+            // Go to last edit location: Ctrl + Shift + Backspace
+            tap_code16(C(S(KC_BSPC)));
+        }
+    } else {
+        // Default behavior for all other layers
+        if (clockwise) {
+            // Redo: Ctrl + Shift + Z
+            tap_code16(C(S(KC_LBRC)));
+        } else {
+            // Undo: Ctrl + Z
+            tap_code16(C(KC_LBRC));
+        }
+    }
+
+    return false;
+}
+#endif
