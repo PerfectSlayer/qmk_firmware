@@ -1,5 +1,9 @@
 #include QMK_KEYBOARD_H
 #include "keymap.h"
+#ifdef OLED_ENABLE
+#    include "metroid.c"
+#endif
+
 
 #define RAISE_L MO(_RAISE)
 #define ADJUS_L MO(_ADJUST)
@@ -60,6 +64,41 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         }
     }
 
+    return false;
+}
+#endif
+
+#ifdef OLED_ENABLE
+bool oled_task_user(void) {
+    // Display animated Metroid sprite on the master side
+    if (is_keyboard_master()) {
+        static uint8_t current_sprite = 0;
+        static uint32_t last_update = 0;
+        uint32_t now = timer_read32();
+
+        // Cycle through sprites every 500ms
+        if (now - last_update > 300) {
+            current_sprite = (current_sprite + 1) % 4;  // Cycle through 0-3
+            last_update = now;
+        }
+
+        // Display the current sprite (sprite1 through sprite4)
+        switch (current_sprite) {
+            case 0:
+                oled_write_raw_P(sprite2, sizeof(sprite2));
+                break;
+            case 1:
+                oled_write_raw_P(sprite1, sizeof(sprite1));
+                break;
+            case 2:
+                oled_write_raw_P(sprite3, sizeof(sprite3));
+                break;
+            case 3:
+                oled_write_raw_P(sprite4, sizeof(sprite4));
+                break;
+        }
+        return false;
+    }
     return false;
 }
 #endif
