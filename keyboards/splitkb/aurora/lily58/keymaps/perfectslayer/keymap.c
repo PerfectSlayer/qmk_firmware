@@ -85,10 +85,10 @@ bool oled_task_user(void) {
         // Display the current sprite (sprite1 through sprite4)
         switch (current_sprite) {
             case 0:
-                oled_write_raw_P(sprite2, sizeof(sprite2));
+                oled_write_raw_P(sprite1, sizeof(sprite1));
                 break;
             case 1:
-                oled_write_raw_P(sprite1, sizeof(sprite1));
+                oled_write_raw_P(sprite2, sizeof(sprite2));
                 break;
             case 2:
                 oled_write_raw_P(sprite3, sizeof(sprite3));
