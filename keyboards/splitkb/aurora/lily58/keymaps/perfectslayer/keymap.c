@@ -71,32 +71,42 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
-    // Display animated Metroid sprite on the master side
     if (!is_keyboard_master()) {
-        static uint8_t current_sprite = 0;
-        static uint32_t last_update = 0;
+        static uint8_t  current_sprite = 0;  // 0 = idle, 1-4 = animation frames
+        static uint32_t last_update    = 0;
+        static uint32_t last_interval  = 400;
         uint32_t now = timer_read32();
 
-        // Cycle through sprites every 500ms
-        if (now - last_update > 300) {
-            current_sprite = (current_sprite + 1) % 4;  // Cycle through 0-3
-            last_update = now;
+        uint8_t wpm    = get_current_wpm();
+        bool    is_idle = (wpm == 0);
+
+        if (current_sprite == 0) {
+            if (!is_idle) {
+                // Typing started - begin animation from frame 1
+                current_sprite = 1;
+                last_update    = now;
+            }
+        } else {
+            // Animating (frames 1-4)
+            last_interval = (wpm > 100) ? 75 : (wpm > 50) ? 150 : (wpm > 20) ? 250 : 400;
+
+            if (now - last_update > last_interval) {
+                if (current_sprite == 4 && is_idle) {
+                    // Full cycle done and still idle - return to sprite0
+                    current_sprite = 0;
+                } else {
+                    current_sprite = (current_sprite % 4) + 1;
+                }
+                last_update = now;
+            }
         }
 
-        // Display the current sprite (sprite1 through sprite4)
         switch (current_sprite) {
-            case 0:
-                oled_write_raw_P(sprite1, sizeof(sprite1));
-                break;
-            case 1:
-                oled_write_raw_P(sprite2, sizeof(sprite2));
-                break;
-            case 2:
-                oled_write_raw_P(sprite3, sizeof(sprite3));
-                break;
-            case 3:
-                oled_write_raw_P(sprite4, sizeof(sprite4));
-                break;
+            case 0: oled_write_raw_P(sprite0, sizeof(sprite0)); break;
+            case 1: oled_write_raw_P(sprite1, sizeof(sprite1)); break;
+            case 2: oled_write_raw_P(sprite2, sizeof(sprite2)); break;
+            case 3: oled_write_raw_P(sprite3, sizeof(sprite3)); break;
+            case 4: oled_write_raw_P(sprite4, sizeof(sprite4)); break;
         }
         return false;
     }
