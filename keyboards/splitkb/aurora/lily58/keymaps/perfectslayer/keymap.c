@@ -72,7 +72,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 #ifdef OLED_ENABLE
 bool oled_task_user(void) {
     // Display animated Metroid sprite on the master side
-    if (is_keyboard_master()) {
+    if (!is_keyboard_master()) {
         static uint8_t current_sprite = 0;
         static uint32_t last_update = 0;
         uint32_t now = timer_read32();
@@ -100,6 +100,6 @@ bool oled_task_user(void) {
         }
         return false;
     }
-    return false;
+    return true;
 }
 #endif
